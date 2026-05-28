@@ -179,7 +179,7 @@ function buildGeometryCanvas(size: number): HTMLCanvasElement {
   ctx.strokeStyle = 'rgba(255, 215, 80, 1)';
 
   // Draw all 13 circles
-  ctx.lineWidth = 0.7;
+  ctx.lineWidth = 1.2;
   [...centers, ...outerCenters].forEach(([ox, oy]) => {
     ctx.beginPath();
     ctx.arc(ox, oy, R, 0, Math.PI * 2);
@@ -187,7 +187,7 @@ function buildGeometryCanvas(size: number): HTMLCanvasElement {
   });
 
   // Metatron's Cube: connect all 7 inner centers to each other
-  ctx.lineWidth = 0.35;
+  ctx.lineWidth = 0.7;
   for (let i = 0; i < centers.length; i++) {
     for (let j = i + 1; j < centers.length; j++) {
       ctx.beginPath();
@@ -294,9 +294,13 @@ export function ConstellationCanvas({
     const { w, h } = logicalSizeRef.current;
     const size = Math.max(w, h) * 0.88;
 
+    // Full hue cycle every ~5 minutes
+    const hue = (t * 0.0012) % 360;
+
     ctx.save();
-    ctx.globalAlpha = 0.032;
+    ctx.globalAlpha = 0.09;
     ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = `hue-rotate(${hue.toFixed(1)}deg)`;
     ctx.translate(w / 2, h / 2);
     ctx.rotate(t * 0.000016); // completes one rotation in ~109 minutes
     ctx.drawImage(geometryRef.current, -size / 2, -size / 2, size, size);
