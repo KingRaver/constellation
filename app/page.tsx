@@ -96,13 +96,17 @@ export default function Home() {
       {/* Node detail panel */}
       <NodeDetailPanel node={selectedNode} onClose={handleClose} />
 
-      {/* Installation title — top left, minimal */}
+      {/* Subtitle — top left */}
       <div className="absolute top-8 left-8 pointer-events-none select-none">
         <p className="iridescent-text text-xs tracking-[0.3em] uppercase font-mono">
           Waking Life Festival · Crato, Portugal
         </p>
+      </div>
+
+      {/* Title — bottom right */}
+      <div className="absolute bottom-7 right-8 pointer-events-none select-none">
         <h1
-          className="text-3xl font-extralight tracking-[0.18em] mt-1"
+          className="text-3xl font-extralight tracking-[0.18em]"
           style={{ color: 'rgba(245, 220, 150, 0.18)' }}
         >
           <SlotText text="signal" />

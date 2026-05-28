@@ -66,17 +66,15 @@ body {
 
 /* Glitch effect for SlotText */
 @keyframes glitch {
-  0%   { transform: translate(0);          text-shadow:  2px 0 rgba(255,  40, 120, 0.7), -2px 0 rgba(0, 220, 255, 0.7); }
-  15%  { transform: translate(-3px, 1px);  text-shadow: -2px 0 rgba(255,  40, 120, 0.7),  2px 0 rgba(0, 220, 255, 0.7); }
-  30%  { transform: translate(2px, -1px);  text-shadow:  3px 0 rgba(255,  40, 120, 0.5), -1px 0 rgba(0, 220, 255, 0.5); }
-  45%  { transform: translate(-1px, 2px);  text-shadow: -3px 0 rgba(255,  40, 120, 0.7),  3px 0 rgba(0, 220, 255, 0.7); }
-  60%  { transform: translate(3px, 0);     text-shadow:  1px 0 rgba(255,  40, 120, 0.4), -3px 0 rgba(0, 220, 255, 0.4); }
-  75%  { transform: translate(-2px, -2px); text-shadow: -1px 0 rgba(255,  40, 120, 0.6),  1px 0 rgba(0, 220, 255, 0.6); }
-  100% { transform: translate(0);          text-shadow:  2px 0 rgba(255,  40, 120, 0.7), -2px 0 rgba(0, 220, 255, 0.7); }
+  0%   { transform: translate(0);       text-shadow:  1px 0 rgba(255, 40, 120, 0.15), -1px 0 rgba(0, 220, 255, 0.15); }
+  25%  { transform: translate(-1px, 0); text-shadow: -1px 0 rgba(255, 40, 120, 0.15),  1px 0 rgba(0, 220, 255, 0.15); }
+  50%  { transform: translate(0);       text-shadow:  1px 0 rgba(255, 40, 120, 0.1),  -1px 0 rgba(0, 220, 255, 0.1); }
+  75%  { transform: translate(1px, 0);  text-shadow: -1px 0 rgba(255, 40, 120, 0.15),  1px 0 rgba(0, 220, 255, 0.15); }
+  100% { transform: translate(0);       text-shadow:  1px 0 rgba(255, 40, 120, 0.15), -1px 0 rgba(0, 220, 255, 0.15); }
 }
 
 .glitch-active {
-  animation: glitch 0.12s steps(1) infinite;
+  animation: glitch 0.25s steps(1) infinite;
 }
 
 /* Iridescent subtitle shimmer */
