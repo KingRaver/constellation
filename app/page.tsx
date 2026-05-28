@@ -6,6 +6,7 @@ import { NodeDetailPanel } from '@/components/NodeDetailPanel';
 import { CanvasErrorBoundary } from '@/components/CanvasErrorBoundary';
 import { NODES, EDGES } from '@/lib/data';
 import { SignalNode } from '@/lib/types';
+import { SlotText } from '@/components/SlotText';
 
 interface HoveredNodeState {
   node: SignalNode;
@@ -97,17 +98,14 @@ export default function Home() {
 
       {/* Installation title — top left, minimal */}
       <div className="absolute top-8 left-8 pointer-events-none select-none">
-        <p
-          className="text-xs tracking-[0.3em] uppercase font-mono"
-          style={{ color: 'rgba(245, 166, 35, 0.35)' }}
-        >
+        <p className="iridescent-text text-xs tracking-[0.3em] uppercase font-mono">
           Waking Life Festival · Crato, Portugal
         </p>
         <h1
           className="text-3xl font-extralight tracking-[0.18em] mt-1"
           style={{ color: 'rgba(245, 220, 150, 0.18)' }}
         >
-          Signal
+          <SlotText text="signal" />
         </h1>
       </div>
 
@@ -115,7 +113,7 @@ export default function Home() {
       <div className="absolute bottom-7 left-8 pointer-events-none select-none">
         <p
           className="text-xs tracking-[0.22em] font-mono"
-          style={{ color: 'rgba(255, 255, 255, 0.13)' }}
+          style={{ color: 'rgba(200, 210, 220, 0.8)', textShadow: '0 0 10px rgba(100, 140, 180, 0.6)' }}
         >
           {NODES.length} nodes · {EDGES.length} active connections · all systems nominal
         </p>
