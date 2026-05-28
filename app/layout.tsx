@@ -3,7 +3,7 @@ import './globals.css';
 
 const title = 'Signal — Waking Life';
 const description =
-  'A living constellation representing the invisible infrastructure of Waking Life festival.';
+  'A living constellation representing the invisible infrastructure of Waking Life.';
 
 export const metadata: Metadata = {
   title,

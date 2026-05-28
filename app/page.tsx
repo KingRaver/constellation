@@ -99,7 +99,7 @@ export default function Home() {
       {/* Subtitle — top left */}
       <div className="absolute top-8 left-8 pointer-events-none select-none">
         <p className="iridescent-text text-xs tracking-[0.3em] uppercase font-mono">
-          Waking Life Festival · Crato, Portugal
+          Waking Life · Crato, Portugal
         </p>
       </div>
 
