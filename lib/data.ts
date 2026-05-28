@@ -3,10 +3,10 @@ import { SignalNode, SignalEdge } from './types';
 export const NODES: SignalNode[] = [
   // ── Stages ───────────────────────────────────────────────────────────────
   {
-    id: 'palco-principal',
-    name: 'Palco Principal',
+    id: 'stage-apuro',
+    name: 'Apuro',
     type: 'stage',
-    description: 'Where the signal becomes sound. Everything flows through here.',
+    description: 'Workshop space by day. Something else entirely by 2am.',
     metrics: [
       { label: 'Signal Strength', value: '98%' },
       { label: 'Connected Devices', value: '47' },
@@ -16,8 +16,8 @@ export const NODES: SignalNode[] = [
     basePosition: [0.46, 0.42],
   },
   {
-    id: 'palco-floresta',
-    name: 'Palco Floresta',
+    id: 'stage-floresta',
+    name: 'Floresta',
     type: 'stage',
     description: 'Deep in the trees, it hums. The forest has a frequency.',
     metrics: [
@@ -26,20 +26,59 @@ export const NODES: SignalNode[] = [
       { label: 'Uplink Bandwidth', value: '1.4 Gbps' },
       { label: 'Last Packet', value: '0.2s ago' },
     ],
-    basePosition: [0.23, 0.60],
+    basePosition: [0.20, 0.58],
   },
   {
-    id: 'palco-nascente',
-    name: 'Palco Nascente',
+    id: 'stage-praia',
+    name: 'Praia',
     type: 'stage',
-    description: 'First light. First signal. The east always wakes before the rest.',
+    description: 'Sun on the water. Bass through the sand. The edge of everything.',
+    metrics: [
+      { label: 'Signal Strength', value: '89%' },
+      { label: 'Connected Devices', value: '31' },
+      { label: 'Uplink Bandwidth', value: '1.2 Gbps' },
+      { label: 'Last Packet', value: '0.3s ago' },
+    ],
+    basePosition: [0.72, 0.78],
+  },
+  {
+    id: 'stage-cochilo',
+    name: 'Cochilo',
+    type: 'stage',
+    description: 'Low and slow. Half-asleep, fully present. The in-between hour.',
     metrics: [
       { label: 'Signal Strength', value: '91%' },
-      { label: 'Connected Devices', value: '18' },
-      { label: 'Uplink Bandwidth', value: '1.1 Gbps' },
+      { label: 'Connected Devices', value: '14' },
+      { label: 'Uplink Bandwidth', value: '0.8 Gbps' },
+      { label: 'Last Packet', value: '0.6s ago' },
+    ],
+    basePosition: [0.33, 0.80],
+  },
+  {
+    id: 'stage-outro-lado',
+    name: 'Outro Lado',
+    type: 'stage',
+    description: 'You have to walk to find it. That is the point.',
+    metrics: [
+      { label: 'Signal Strength', value: '86%' },
+      { label: 'Connected Devices', value: '19' },
+      { label: 'Uplink Bandwidth', value: '1.0 Gbps' },
+      { label: 'Last Packet', value: '0.5s ago' },
+    ],
+    basePosition: [0.12, 0.28],
+  },
+  {
+    id: 'stage-mimo',
+    name: 'Mimo',
+    type: 'stage',
+    description: 'Small room. Big feeling. Every set feels like a secret.',
+    metrics: [
+      { label: 'Signal Strength', value: '93%' },
+      { label: 'Connected Devices', value: '11' },
+      { label: 'Uplink Bandwidth', value: '0.7 Gbps' },
       { label: 'Last Packet', value: '0.4s ago' },
     ],
-    basePosition: [0.74, 0.28],
+    basePosition: [0.80, 0.33],
   },
 
   // ── Access Points ─────────────────────────────────────────────────────────
@@ -299,23 +338,35 @@ export const NODES: SignalNode[] = [
 ];
 
 export const EDGES: SignalEdge[] = [
-  // Palco Principal — most connected, central hub
-  { from: 'palco-principal', to: 'ap-entrada',        curvature:  0.28 },
-  { from: 'palco-principal', to: 'ap-backstage',      curvature: -0.22 },
-  { from: 'palco-principal', to: 'pos-bar-principal', curvature:  0.18 },
-  { from: 'palco-principal', to: 'crew-stage-a',      curvature: -0.30 },
-  { from: 'palco-principal', to: 'crew-production',   curvature:  0.20 },
+  // Apuro — main stage, most connected
+  { from: 'stage-apuro',      to: 'ap-entrada',        curvature:  0.28 },
+  { from: 'stage-apuro',      to: 'ap-backstage',      curvature: -0.22 },
+  { from: 'stage-apuro',      to: 'pos-bar-principal', curvature:  0.18 },
+  { from: 'stage-apuro',      to: 'crew-stage-a',      curvature: -0.30 },
+  { from: 'stage-apuro',      to: 'crew-production',   curvature:  0.20 },
 
-  // Palco Floresta
-  { from: 'palco-floresta', to: 'ap-arte-01',       curvature: -0.22 },
-  { from: 'palco-floresta', to: 'pos-bar-floresta', curvature:  0.30 },
-  { from: 'palco-floresta', to: 'crew-stage-b',     curvature: -0.18 },
-  { from: 'palco-floresta', to: 'arvore-de-luz',    curvature:  0.24 },
+  // Floresta
+  { from: 'stage-floresta',   to: 'ap-arte-01',        curvature: -0.22 },
+  { from: 'stage-floresta',   to: 'pos-bar-floresta',  curvature:  0.30 },
+  { from: 'stage-floresta',   to: 'crew-stage-b',      curvature: -0.18 },
+  { from: 'stage-floresta',   to: 'arvore-de-luz',     curvature:  0.24 },
 
-  // Palco Nascente — peripheral, fewer but strong connections
-  { from: 'palco-nascente', to: 'ap-arte-02',   curvature:  0.22 },
-  { from: 'palco-nascente', to: 'espelho-ceu',  curvature: -0.28 },
-  { from: 'palco-nascente', to: 'crew-stage-b', curvature:  0.16 },
+  // Praia
+  { from: 'stage-praia',      to: 'ap-arte-02',        curvature:  0.22 },
+  { from: 'stage-praia',      to: 'pos-mercado-01',    curvature: -0.20 },
+  { from: 'stage-praia',      to: 'crew-stage-b',      curvature:  0.16 },
+
+  // Cochilo — quiet, minimal connections
+  { from: 'stage-cochilo',    to: 'ap-arte-01',        curvature:  0.18 },
+  { from: 'stage-cochilo',    to: 'portal',            curvature: -0.24 },
+
+  // Outro Lado — remote, reaches back through security
+  { from: 'stage-outro-lado', to: 'ap-campismo',       curvature: -0.26 },
+  { from: 'stage-outro-lado', to: 'crew-security',     curvature:  0.20 },
+
+  // Mimo — intimate, hooks into backstage AP
+  { from: 'stage-mimo',       to: 'ap-backstage',      curvature:  0.24 },
+  { from: 'stage-mimo',       to: 'espelho-ceu',       curvature: -0.20 },
 
   // Access point mesh
   { from: 'ap-entrada',   to: 'ap-campismo',    curvature: -0.20 },
