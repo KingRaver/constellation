@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
-const title = 'Signal — Waking Life Festival Network';
+const title = 'Signal — Waking Life';
 const description =
   'A living constellation representing the invisible infrastructure of Waking Life festival.';
 

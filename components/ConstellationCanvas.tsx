@@ -9,9 +9,9 @@ import { SignalNode } from '@/lib/types';
 const NODE_COLORS: Record<string, string> = {
   stage:           '#f5a623',
   'access-point':  '#00d4ff',
-  payment:         '#e8890c',
+  payment:         '#00e676',
   crew:            '#8b00ff',
-  art:             '#cc00ff',
+  art:             '#ff0099',
 };
 
 const NODE_RADII: Record<string, number> = {
