@@ -205,7 +205,6 @@ function buildGeometryCanvas(size: number): HTMLCanvasElement {
 interface ConstellationCanvasProps {
   onNodeSelect: (node: SignalNode | null) => void;
   onNodeHover: (node: SignalNode | null, x: number, y: number) => void;
-  hasSelectedNode: boolean;
   // The currently selected node id, kept in sync with React state so the
   // canvas can clear its own ref when the panel is closed externally.
   selectedNodeId: string | null;
@@ -214,7 +213,6 @@ interface ConstellationCanvasProps {
 export function ConstellationCanvas({
   onNodeSelect,
   onNodeHover,
-  hasSelectedNode,
   selectedNodeId,
 }: ConstellationCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -232,10 +230,6 @@ export function ConstellationCanvas({
   const logicalSizeRef   = useRef({ w: 0, h: 0 });
   const prevHoveredRef   = useRef<string | null>(null);
   const prevTimestampRef = useRef<number>(0);
-
-  // Keep selected node id in sync with React state without re-subscribing the rAF loop
-  const hasSelectedRef = useRef(hasSelectedNode);
-  useEffect(() => { hasSelectedRef.current = hasSelectedNode; }, [hasSelectedNode]);
 
   // When the parent clears the selected node (panel closed externally), clear the canvas ref too
   useEffect(() => { selectedIdRef.current = selectedNodeId; }, [selectedNodeId]);
@@ -343,9 +337,9 @@ export function ConstellationCanvas({
   const drawEdges = useCallback((
     ctx: CanvasRenderingContext2D,
     focusedId: string | null,
-    connected: Set<string>
+    connected: Set<string>,
+    map: Map<string, AnimatedNode>
   ) => {
-    const map = new Map(nodesRef.current.map((n) => [n.id, n]));
     const hasFocus = focusedId !== null;
 
     EDGES.forEach(({ from, to, curvature }) => {
@@ -380,9 +374,9 @@ export function ConstellationCanvas({
     t: number,
     dt: number,
     focusedId: string | null,
-    connected: Set<string>
+    connected: Set<string>,
+    map: Map<string, AnimatedNode>
   ) => {
-    const map = new Map(nodesRef.current.map((n) => [n.id, n]));
     const hasFocus = focusedId !== null;
 
     // Spawn new packets
@@ -576,7 +570,6 @@ export function ConstellationCanvas({
     updatePositions(t);
 
     const selectedId = selectedIdRef.current;
-    const hoveredId  = hoveredIdRef.current;
 
     // Check hover state — update React only when it changes
     const nowHovered = nodeUnderMouse();
@@ -594,15 +587,19 @@ export function ConstellationCanvas({
     const dimFocusId  = selectedId;                        // node dimming: selection only
     const edgeFocusId = selectedId ?? hoveredIdRef.current; // edge brightening: hover or selection
 
-    const dimConnected  = getConnected(dimFocusId);
+    // When a selection is active both IDs are identical, so compute the set once.
     const edgeConnected = getConnected(edgeFocusId);
+    const dimConnected  = dimFocusId === edgeFocusId ? edgeConnected : getConnected(dimFocusId);
+
+    // Build the id→node lookup once per frame and share it with the edge/packet passes.
+    const nodeMap = new Map(nodesRef.current.map((n) => [n.id, n]));
 
     // Render frame
     drawBackground(ctx);
     drawGeometry(ctx, t);
     drawParticles(ctx, dt);
-    drawEdges(ctx, edgeFocusId, edgeConnected);
-    drawPackets(ctx, t, dt, edgeFocusId, edgeConnected);
+    drawEdges(ctx, edgeFocusId, edgeConnected, nodeMap);
+    drawPackets(ctx, t, dt, edgeFocusId, edgeConnected, nodeMap);
 
     for (const node of nodesRef.current) {
       const isHovered  = hoveredIdRef.current === node.id;
@@ -623,7 +620,10 @@ export function ConstellationCanvas({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const setup = () => {
+    // Resize the canvas backing store to the current viewport. Nodes use
+    // normalized [0,1] base positions scaled by w/h each frame, so they reflow
+    // automatically — no need to regenerate (which would reset drift phases).
+    const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
       const lw  = window.innerWidth;
       const lh  = window.innerHeight;
@@ -637,11 +637,13 @@ export function ConstellationCanvas({
       if (ctx) ctx.scale(dpr, dpr);
 
       logicalSizeRef.current = { w: lw, h: lh };
-      nodesRef.current       = makeAnimatedNodes(lw, lh);
-      particlesRef.current   = Array.from({ length: PARTICLE_COUNT }, () => makeParticle(lw, lh));
     };
 
-    setup();
+    // First-time init: size the canvas and seed nodes + particles.
+    resizeCanvas();
+    const { w, h } = logicalSizeRef.current;
+    nodesRef.current     = makeAnimatedNodes(w, h);
+    particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => makeParticle(w, h));
 
     // Build the sacred geometry offscreen canvas once
     geometryRef.current = buildGeometryCanvas(2400);
@@ -649,13 +651,18 @@ export function ConstellationCanvas({
     // Start the loop
     rafRef.current = requestAnimationFrame(animate);
 
+    // Debounce resize so a drag-resize doesn't thrash the backing store, and
+    // preserve drift phases by only resizing (never regenerating) the nodes.
+    let resizeTimer: ReturnType<typeof setTimeout>;
     const onResize = () => {
-      setup();
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resizeCanvas, 150);
     };
     window.addEventListener('resize', onResize);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      clearTimeout(resizeTimer);
       window.removeEventListener('resize', onResize);
     };
   }, [animate]);
@@ -682,14 +689,50 @@ export function ConstellationCanvas({
     onNodeSelect(id ? (NODES.find((n) => n.id === id) ?? null) : null);
   }, [nodeUnderMouse, onNodeSelect]);
 
+  // ─── Touch handlers ─────────────────────────────────────────────────────────
+  // Map touches onto the same mouseRef code path so phones/tablets are interactive.
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (!rect || !touch) return;
+    mouseRef.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (!rect || !touch) return;
+    mouseRef.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    const touch = e.changedTouches[0];
+    if (rect && touch) {
+      mouseRef.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    }
+
+    // A tap acts as a click: select the node under the touch, then clear hover.
+    const id = nodeUnderMouse();
+    selectedIdRef.current = id;
+    onNodeSelect(id ? (NODES.find((n) => n.id === id) ?? null) : null);
+    mouseRef.current = { x: -9999, y: -9999 };
+  }, [nodeUnderMouse, onNodeSelect]);
+
   return (
     <canvas
       ref={canvasRef}
-      className="block w-full h-full"
+      className="block w-full h-full touch-none"
       style={{ cursor: 'crosshair' }}
+      aria-label="Interactive constellation map of the Waking Life festival network. Tap or click a node to view its details."
+      role="img"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     />
   );
 }

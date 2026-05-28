@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ConstellationCanvas } from '@/components/ConstellationCanvas';
 import { NodeDetailPanel } from '@/components/NodeDetailPanel';
+import { CanvasErrorBoundary } from '@/components/CanvasErrorBoundary';
+import { NODES, EDGES } from '@/lib/data';
 import { SignalNode } from '@/lib/types';
 
 interface HoveredNodeState {
@@ -65,16 +67,26 @@ export default function Home() {
     setSelectedNode(null);
   }, []);
 
+  // Close the detail panel when Escape is pressed.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedNode(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
     <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#0a0705' }}>
       {/* Canvas — full viewport */}
       <div className="absolute inset-0">
-        <ConstellationCanvas
-          onNodeSelect={handleNodeSelect}
-          onNodeHover={handleNodeHover}
-          hasSelectedNode={selectedNode !== null}
-          selectedNodeId={selectedNode?.id ?? null}
-        />
+        <CanvasErrorBoundary>
+          <ConstellationCanvas
+            onNodeSelect={handleNodeSelect}
+            onNodeHover={handleNodeHover}
+            selectedNodeId={selectedNode?.id ?? null}
+          />
+        </CanvasErrorBoundary>
       </div>
 
       {/* Hover tooltip — only visible when nothing is selected */}
@@ -105,7 +117,7 @@ export default function Home() {
           className="text-xs tracking-[0.22em] font-mono"
           style={{ color: 'rgba(255, 255, 255, 0.13)' }}
         >
-          22 nodes · 31 active connections · all systems nominal
+          {NODES.length} nodes · {EDGES.length} active connections · all systems nominal
         </p>
       </div>
     </main>
